@@ -7,8 +7,6 @@ import Image from 'next/image';
 interface CSVRow {
     entity: string;
     active_phrase: string;
-    is_edited: string;
-    to_use: string;
 }
 
 export default function Home() {
@@ -54,8 +52,6 @@ export default function Home() {
                     data.push({
                         entity: values[0] || '',
                         active_phrase: values[1] || '',
-                        is_edited: values[2] || '',
-                        to_use: values[3] || ''
                     });
                 }
             }
@@ -90,6 +86,32 @@ export default function Home() {
         return data[randomIndex].active_phrase;
     };
 
+    const renderTextWithFirstWords = (text: string) => {
+        // Split text into sentences based on common sentence endings
+        const sentences = text.split(/([.!?]+\s+)/).filter(Boolean);
+
+        return sentences.map((sentence, index) => {
+            // Skip if this is just punctuation/whitespace
+            if (/^[.!?\s]+$/.test(sentence)) {
+                return sentence;
+            }
+
+            // Find the first word (sequence of non-whitespace characters)
+            const words = sentence.split(/(\s+)/);
+            if (words.length === 0) return sentence;
+
+            const firstWord = words[0];
+            const restOfSentence = words.slice(1).join('');
+
+            return (
+                <span key={index}>
+                    <span className="text-un-blue font-medium">{firstWord}</span>
+                    <span className="font-normal">{restOfSentence}</span>
+                </span>
+            );
+        });
+    };
+
     return (
         <main className="min-h-screen bg-background flex items-center justify-center px-4 sm:px-6">
             <div className="text-center">
@@ -106,12 +128,12 @@ export default function Home() {
                 </div>
 
                 {/* Content - Centered text that can expand down */}
-                <div className="max-w-3xl">
+                <div className="max-w-2xl">
                     {loading ? (
                         <p className="text-muted-foreground text-lg">Loading...</p>
                     ) : (
-                        <p className="text-foreground text-xl sm:text-2xl md:text-3xl leading-relaxed font-medium">
-                            {currentSentence}
+                        <p className="text-foreground text-xl sm:text-2xl md:text-3xl leading-relaxed">
+                            {renderTextWithFirstWords(currentSentence)}
                         </p>
                     )}
                 </div>

@@ -1,90 +1,46 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-interface CSVRow {
+interface Impact {
+    id: number;
     entity: string;
-    active_phrase: string;
+    impact: string;
 }
 
 export default function Home() {
-    const [currentSentence, setCurrentSentence] = useState<string>('');
-    const [sentences, setSentences] = useState<CSVRow[]>([]);
+    const [currentImpact, setCurrentImpact] = useState<string>('');
+    const [impacts, setImpacts] = useState<Impact[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const parseCSVLine = (line: string): string[] => {
-        const result: string[] = [];
-        let current = '';
-        let inQuotes = false;
-
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-
-            if (char === '"') {
-                inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
-                result.push(current.trim());
-                current = '';
-            } else {
-                current += char;
-            }
-        }
-
-        result.push(current.trim());
-        return result;
-    };
-
-    const loadCSVData = useCallback(async () => {
-        try {
-            const response = await fetch('/data/filtered_results.csv');
-            const csvText = await response.text();
-
-            // Parse CSV
-            const lines = csvText.split('\n');
-
-            const data: CSVRow[] = [];
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (line) {
-                    const values = parseCSVLine(line);
-                    data.push({
-                        entity: values[0] || '',
-                        active_phrase: values[1] || '',
-                    });
+    useEffect(() => {
+        fetch('/data/impacts.json')
+            .then(response => response.json())
+            .then((data: Impact[]) => {
+                setImpacts(data);
+                if (data.length > 0) {
+                    setCurrentImpact(data[Math.floor(Math.random() * data.length)].impact);
                 }
-            }
-
-            setSentences(data);
-            if (data.length > 0) {
-                setCurrentSentence(getRandomSentence(data));
-            }
-            setLoading(false);
-        } catch (error) {
-            console.error('Error loading CSV:', error);
-            setLoading(false);
-        }
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error loading impacts:', error);
+                setLoading(false);
+            });
     }, []);
 
     useEffect(() => {
-        loadCSVData();
-    }, [loadCSVData]);
-
-    useEffect(() => {
-        if (sentences.length > 0) {
+        if (impacts.length > 0) {
             const interval = setInterval(() => {
-                setCurrentSentence(getRandomSentence(sentences));
-            }, 10000); // Change sentence every 5 seconds
+                const randomImpact = impacts[Math.floor(Math.random() * impacts.length)];
+                setCurrentImpact(randomImpact.impact);
+            }, 5000); // Change impact every 5 seconds
 
             return () => clearInterval(interval);
         }
-    }, [sentences]);
-
-    const getRandomSentence = (data: CSVRow[]) => {
-        const randomIndex = Math.floor(Math.random() * data.length);
-        return data[randomIndex].active_phrase;
-    };
+    }, [impacts]);
 
     const renderTextWithFirstWords = (text: string) => {
         // Split text into sentences based on common sentence endings
@@ -133,7 +89,7 @@ export default function Home() {
                         <p className="text-muted-foreground text-lg">Loading...</p>
                     ) : (
                         <p className="text-foreground text-xl sm:text-2xl md:text-3xl leading-relaxed">
-                            {renderTextWithFirstWords(currentSentence)}
+                            {renderTextWithFirstWords(currentImpact)}
                         </p>
                     )}
                 </div>

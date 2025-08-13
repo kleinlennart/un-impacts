@@ -1,8 +1,7 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface Impact {
     id: number;
@@ -17,7 +16,7 @@ export default function Home() {
 
     useEffect(() => {
         fetch('/data/impacts.json')
-            .then(response => response.json())
+            .then((r) => r.json())
             .then((data: Impact[]) => {
                 setImpacts(data);
                 if (data.length > 0) {
@@ -25,8 +24,8 @@ export default function Home() {
                 }
                 setLoading(false);
             })
-            .catch(error => {
-                console.error('Error loading impacts:', error);
+            .catch((e) => {
+                console.error('Error loading impacts:', e);
                 setLoading(false);
             });
     }, []);
@@ -36,29 +35,20 @@ export default function Home() {
             const interval = setInterval(() => {
                 const randomImpact = impacts[Math.floor(Math.random() * impacts.length)];
                 setCurrentImpact(randomImpact.impact);
-            }, 5000); // Change impact every 5 seconds
-
+            }, 5000);
             return () => clearInterval(interval);
         }
     }, [impacts]);
 
     const renderTextWithFirstWords = (text: string) => {
-        // Split text into sentences based on common sentence endings
         const sentences = text.split(/([.!?]+\s+)/).filter(Boolean);
-
         return sentences.map((sentence, index) => {
-            // Skip if this is just punctuation/whitespace
-            if (/^[.!?\s]+$/.test(sentence)) {
-                return sentence;
-            }
-
-            // Find the first word (sequence of non-whitespace characters)
+            if (/^[.!?\s]+$/.test(sentence)) return sentence;
             const words = sentence.split(/(\s+)/);
             if (words.length === 0) return sentence;
 
             const firstWord = words[0];
             const restOfSentence = words.slice(1).join('');
-
             return (
                 <span key={index}>
                     <span className="text-un-blue font-medium">{firstWord}</span>
@@ -69,22 +59,46 @@ export default function Home() {
     };
 
     return (
-        <main className="min-h-screen bg-background flex items-center justify-center px-4 sm:px-6">
-            <div className="text-center">
-                {/* Logo - Fixed position relative to center */}
-                <div className="absolute -translate-y-25 left-1/2 -translate-x-1/2">
+        // In your component render:
+
+        // TUNE THESE THREE values to position everything.
+        // - --logo-top: vertical position of the logo (from top of viewport)
+        // - --logo-h:   visual height of the logo
+        // - --gap:      space between logo and the text block
+        <div
+            style={
+                {
+                    // Adjust these to taste:
+                    ['--logo-top' as any]: '36vh', // move higher: 36vh, lower: 40vh
+                    ['--logo-h' as any]: '5rem',   // match your Image height (sm:h-20 = 5rem)
+                    ['--gap' as any]: '3vh',       // space between logo and text
+                } as React.CSSProperties
+            }
+        >
+            <main
+                // padding-top uses the variables so the text always starts beneath the fixed logo
+                style={{ paddingTop: 'calc(var(--logo-top) + var(--logo-h) + var(--gap))' }}
+                className="min-h-screen bg-background px-4 sm:px-6 flex justify-center"
+            >
+                {/* Fixed UN logo at an absolute viewport position */}
+                <div
+                    className="fixed left-1/2 -translate-x-1/2 pointer-events-none select-none"
+                    style={{ top: 'var(--logo-top)', zIndex: 10 }}
+                >
                     <Image
                         src="/images/UN Logo_Horizontal_English/Colour/UN Logo_Horizontal_Colour_English.svg"
                         alt="UN Logo"
                         width={320}
                         height={80}
-                        className="h-16 sm:h-20 w-auto select-none"
+                        // height must match --logo-h for perfect spacing
+                        className="h-20 w-auto sm:h-20" // 5rem; keep this in sync with --logo-h
                         draggable="false"
+                        priority
                     />
                 </div>
 
-                {/* Content - Centered text that can expand down */}
-                <div className="max-w-2xl">
+                {/* Text flows downward only, never overlaps the logo */}
+                <div className="max-w-2xl text-center w-full">
                     {loading ? (
                         <p className="text-muted-foreground text-lg">Loading...</p>
                     ) : (
@@ -93,7 +107,9 @@ export default function Home() {
                         </p>
                     )}
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
+
+
     );
 }

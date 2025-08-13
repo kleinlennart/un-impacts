@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 interface Impact {
     id: number;
@@ -40,13 +40,21 @@ export default function Home() {
         }
     }, [impacts]);
 
+    // --- Typography helpers -------------------------------------------------
+    // Prevent a single orphan word by binding the last two words with \u00A0.
+    const preventOrphan = (text: string) => {
+        const words = text.trim().split(' ');
+        if (words.length < 2) return text;
+        return words.slice(0, -1).join(' ') + '\u00A0' + words[words.length - 1];
+    };
+
+    // Highlight first word of each sentence (keeps punctuation), applied AFTER orphan fix.
     const renderTextWithFirstWords = (text: string) => {
         const sentences = text.split(/([.!?]+\s+)/).filter(Boolean);
         return sentences.map((sentence, index) => {
             if (/^[.!?\s]+$/.test(sentence)) return sentence;
             const words = sentence.split(/(\s+)/);
             if (words.length === 0) return sentence;
-
             const firstWord = words[0];
             const restOfSentence = words.slice(1).join('');
             return (
@@ -58,29 +66,29 @@ export default function Home() {
         });
     };
 
-    return (
-        // In your component render:
+    const prettyImpact = useMemo(() => preventOrphan(currentImpact), [currentImpact]);
 
-        // TUNE THESE THREE values to position everything.
-        // - --logo-top: vertical position of the logo (from top of viewport)
-        // - --logo-h:   visual height of the logo
-        // - --gap:      space between logo and the text block
+    // --- Layout knobs (set-and-forget) --------------------------------------
+    // TUNE THESE THREE values to position everything.
+    // - --logo-top: vertical position of the logo (from top of viewport)
+    // - --logo-h:   visual height of the logo
+    // - --gap:      space between logo and the text block
+    return (
         <div
             style={
                 {
-                    // Adjust these to taste:
-                    ['--logo-top' as any]: '36vh', // move higher: 36vh, lower: 40vh
-                    ['--logo-h' as any]: '5rem',   // match your Image height (sm:h-20 = 5rem)
-                    ['--gap' as any]: '3vh',       // space between logo and text
+                    ['--logo-top' as any]: '36vh', // move higher: 34vh, lower: 38-40vh
+                    ['--logo-h' as any]: '5rem',   // must match the Image height below
+                    ['--gap' as any]: '4vh',       // extra breathing room above the text
                 } as React.CSSProperties
             }
         >
             <main
-                // padding-top uses the variables so the text always starts beneath the fixed logo
+                // Text always starts beneath the fixed logo; adjust only the vars above.
                 style={{ paddingTop: 'calc(var(--logo-top) + var(--logo-h) + var(--gap))' }}
                 className="min-h-screen bg-background px-4 sm:px-6 flex justify-center"
             >
-                {/* Fixed UN logo at an absolute viewport position */}
+                {/* Fixed UN logo at a precise viewport position (does not move) */}
                 <div
                     className="fixed left-1/2 -translate-x-1/2 pointer-events-none select-none"
                     style={{ top: 'var(--logo-top)', zIndex: 10 }}
@@ -90,26 +98,30 @@ export default function Home() {
                         alt="UN Logo"
                         width={320}
                         height={80}
-                        // height must match --logo-h for perfect spacing
-                        className="h-20 w-auto sm:h-20" // 5rem; keep this in sync with --logo-h
+                        className="h-20 w-auto sm:h-20" // 5rem; keep in sync with --logo-h
                         draggable="false"
                         priority
                     />
                 </div>
 
-                {/* Text flows downward only, never overlaps the logo */}
+                {/* Text flows downward only, orphan-proofed, with balanced wrapping */}
                 <div className="max-w-2xl text-center w-full">
                     {loading ? (
                         <p className="text-muted-foreground text-lg">Loading...</p>
                     ) : (
-                        <p className="text-foreground text-xl sm:text-2xl md:text-3xl leading-relaxed">
-                            {renderTextWithFirstWords(currentImpact)}
+                        <p
+                            className="text-foreground text-xl sm:text-2xl md:text-3xl leading-relaxed"
+                            style={{
+                                textWrap: 'balance', // nicer line balance (supported in modern browsers)
+                                overflowWrap: 'anywhere',
+                                wordBreak: 'normal',
+                            }}
+                        >
+                            {renderTextWithFirstWords(prettyImpact)}
                         </p>
                     )}
                 </div>
             </main>
         </div>
-
-
     );
 }

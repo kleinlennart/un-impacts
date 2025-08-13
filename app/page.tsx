@@ -13,6 +13,7 @@ export default function Home() {
     const [currentImpact, setCurrentImpact] = useState<string>('');
     const [impacts, setImpacts] = useState<Impact[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isTransitioning, setIsTransitioning] = useState(false);
 
     useEffect(() => {
         fetch('/data/impacts.json')
@@ -33,8 +34,14 @@ export default function Home() {
     useEffect(() => {
         if (impacts.length > 0) {
             const interval = setInterval(() => {
-                const randomImpact = impacts[Math.floor(Math.random() * impacts.length)];
-                setCurrentImpact(randomImpact.impact);
+                setIsTransitioning(true);
+
+                // Start fade out
+                setTimeout(() => {
+                    const randomImpact = impacts[Math.floor(Math.random() * impacts.length)];
+                    setCurrentImpact(randomImpact.impact);
+                    setIsTransitioning(false);
+                }, 300); // Half of transition duration
             }, 5000);
             return () => clearInterval(interval);
         }
@@ -75,13 +82,11 @@ export default function Home() {
     // - --gap:      space between logo and the text block
     return (
         <div
-            style={
-                {
-                    ['--logo-top' as any]: '36vh', // move higher: 34vh, lower: 38-40vh
-                    ['--logo-h' as any]: '5rem',   // must match the Image height below
-                    ['--gap' as any]: '4vh',       // extra breathing room above the text
-                } as React.CSSProperties
-            }
+            style={{
+                '--logo-top': '36vh', // move higher: 34vh, lower: 38-40vh
+                '--logo-h': '5rem',   // must match the Image height below
+                '--gap': '4vh',       // extra breathing room above the text
+            } as React.CSSProperties}
         >
             <main
                 // Text always starts beneath the fixed logo; adjust only the vars above.
@@ -107,10 +112,15 @@ export default function Home() {
                 {/* Text flows downward only, orphan-proofed, with balanced wrapping */}
                 <div className="max-w-2xl text-center w-full">
                     {loading ? (
-                        <p className="text-muted-foreground text-lg">Loading...</p>
+                        <p className="text-muted-foreground text-lg transition-all duration-600 ease-out">
+                            Loading...
+                        </p>
                     ) : (
                         <p
-                            className="text-foreground text-xl sm:text-2xl md:text-3xl leading-normal"
+                            className={`text-foreground text-xl sm:text-2xl md:text-3xl leading-normal transition-all duration-600 ease-out transform ${isTransitioning
+                                ? 'opacity-0 -translate-x-4 scale-95'
+                                : 'opacity-100 translate-x-0 scale-100'
+                                }`}
                             style={{
                                 textWrap: 'balance', // nicer line balance (supported in modern browsers)
                                 overflowWrap: 'anywhere',

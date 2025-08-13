@@ -110,7 +110,7 @@ export default function Home() {
                         <p className="text-muted-foreground text-lg">Loading...</p>
                     ) : (
                         <p
-                            className="text-foreground text-xl sm:text-2xl md:text-3xl leading-relaxed"
+                            className="text-foreground text-xl sm:text-2xl md:text-3xl leading-normal"
                             style={{
                                 textWrap: 'balance', // nicer line balance (supported in modern browsers)
                                 overflowWrap: 'anywhere',
@@ -122,6 +122,13 @@ export default function Home() {
                     )}
                 </div>
             </main>
+
+            {/* Footnote */}
+            <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
+                <p className="text-xs text-muted-foreground/40 text-center px-4">
+                    Impacts extracted from 2024 Annual Reports for UN system entities. This is an unoffical site.
+                </p>
+            </footer>
         </div>
     );
 }

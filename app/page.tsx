@@ -11,6 +11,7 @@ interface Impact {
 
 export default function Home() {
     const [currentImpact, setCurrentImpact] = useState<string>('');
+    const [currentImpactData, setCurrentImpactData] = useState<Impact | null>(null);
     const [impacts, setImpacts] = useState<Impact[]>([]);
     const [loading, setLoading] = useState(true);
     const [isTransitioning, setIsTransitioning] = useState(false);
@@ -21,7 +22,9 @@ export default function Home() {
             .then((data: Impact[]) => {
                 setImpacts(data);
                 if (data.length > 0) {
-                    setCurrentImpact(data[Math.floor(Math.random() * data.length)].impact);
+                    const firstImpact = data[Math.floor(Math.random() * data.length)];
+                    setCurrentImpact(firstImpact.impact);
+                    setCurrentImpactData(firstImpact);
                 }
                 setLoading(false);
             })
@@ -38,14 +41,47 @@ export default function Home() {
 
                 // Start fade out
                 setTimeout(() => {
-                    const randomImpact = impacts[Math.floor(Math.random() * impacts.length)];
-                    setCurrentImpact(randomImpact.impact);
+                    // Get next impact ensuring no consecutive duplicates
+                    const getNextImpact = (): Impact => {
+                        if (impacts.length <= 1) {
+                            return impacts[0];
+                        }
+
+                        let availableImpacts = impacts;
+
+                        // Filter out impacts with same sentence or entity as current
+                        if (currentImpactData) {
+                            availableImpacts = impacts.filter(impact =>
+                                impact.impact !== currentImpactData.impact &&
+                                impact.entity !== currentImpactData.entity
+                            );
+                        }
+
+                        // If no valid impacts found (shouldn't happen with diverse data), 
+                        // just filter out the exact same impact
+                        if (availableImpacts.length === 0 && currentImpactData) {
+                            availableImpacts = impacts.filter(impact =>
+                                impact.id !== currentImpactData.id
+                            );
+                        }
+
+                        // Final fallback to prevent infinite loop
+                        if (availableImpacts.length === 0) {
+                            availableImpacts = impacts;
+                        }
+
+                        return availableImpacts[Math.floor(Math.random() * availableImpacts.length)];
+                    };
+
+                    const nextImpact = getNextImpact();
+                    setCurrentImpact(nextImpact.impact);
+                    setCurrentImpactData(nextImpact);
                     setIsTransitioning(false);
                 }, 300); // Half of transition duration
             }, 5000);
             return () => clearInterval(interval);
         }
-    }, [impacts]);
+    }, [impacts, currentImpactData]);
 
     // --- Typography helpers -------------------------------------------------
     // Prevent a single orphan word by binding the last two words with \u00A0.

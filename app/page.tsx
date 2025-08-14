@@ -157,7 +157,7 @@ export default function Home() {
             <main
                 // Text always starts beneath the fixed logo; adjust only the vars above.
                 style={{ paddingTop: 'calc(var(--logo-top) + var(--logo-h) + var(--gap))' }}
-                className="min-h-screen bg-background px-4 sm:px-6 flex justify-center"
+                className="h-screen bg-background px-4 sm:px-6 flex justify-center overflow-hidden"
             >
                 {/* Fixed UN logo at a precise viewport position (does not move) */}
                 <div
@@ -185,8 +185,6 @@ export default function Home() {
                                 }`}
                             style={{
                                 textWrap: 'balance', // nicer line balance (supported in modern browsers)
-                                overflowWrap: 'anywhere',
-                                wordBreak: 'normal',
                             }}
                         >
                             {currentImpactData && renderTextWithHighlight({ ...currentImpactData, impact: prettyImpact })}
@@ -198,7 +196,7 @@ export default function Home() {
             {/* Footnote */}
             <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
                 <p className="text-xs text-muted-foreground/40 text-center px-4">
-                    Impacts extracted from the 2024 Annual Reports of UN system entities. This is an unofficial site.
+                    Impacts extracted from the 2024 Annual Reports of UN system entities.<br />This is an unofficial site.
                 </p>
             </footer>
 

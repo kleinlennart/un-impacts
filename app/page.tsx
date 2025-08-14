@@ -73,7 +73,7 @@ export default function Home() {
     }, [impacts, currentImpactData, currentIndex]);
 
     useEffect(() => {
-        fetch('/data/impacts.json')
+        fetch('/api/impacts')
             .then((r) => r.json())
             .then((data: Impact[]) => {
                 setImpacts(data);
@@ -169,11 +169,7 @@ export default function Home() {
 
                 {/* Text flows downward only, orphan-proofed, with balanced wrapping */}
                 <div className="max-w-2xl text-center w-full">
-                    {loading ? (
-                        <p className="text-muted-foreground text-lg transition-all duration-600 ease-out">
-                            Loading...
-                        </p>
-                    ) : (
+                    {!loading && currentImpactData && (
                         <p
                             className={`text-foreground text-xl sm:text-2xl md:text-3xl leading-normal transition-all duration-600 ease-out transform ${isTransitioning
                                 ? 'opacity-0 -translate-x-4 scale-95'

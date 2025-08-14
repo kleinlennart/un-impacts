@@ -1,20 +1,76 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { preventOrphan, parseTextWithHighlight } from '@/lib/utils';
+
+// Configuration constants
+const SEQUENTIAL_MODE = false; // Set to true for sequential navigation, false for random
+const AUTO_ADVANCE_INTERVAL = 5000; // milliseconds
 
 interface Impact {
     id: number;
     entity: string;
+    highlight: string;
     impact: string;
 }
 
 export default function Home() {
-    const [currentImpact, setCurrentImpact] = useState<string>('');
     const [currentImpactData, setCurrentImpactData] = useState<Impact | null>(null);
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [impacts, setImpacts] = useState<Impact[]>([]);
     const [loading, setLoading] = useState(true);
     const [isTransitioning, setIsTransitioning] = useState(false);
+
+    // Function to go to next impact
+    const goToNext = useCallback(() => {
+        if (impacts.length === 0) return;
+
+        setIsTransitioning(true);
+        setTimeout(() => {
+            if (SEQUENTIAL_MODE) {
+                const nextIndex = (currentIndex + 1) % impacts.length;
+                setCurrentIndex(nextIndex);
+                setCurrentImpactData(impacts[nextIndex]);
+            } else {
+                // Random mode - existing logic
+                const getNextImpact = (): Impact => {
+                    if (impacts.length <= 1) {
+                        return impacts[0];
+                    }
+
+                    let availableImpacts = impacts;
+
+                    // Filter out impacts with same sentence or entity as current
+                    if (currentImpactData) {
+                        availableImpacts = impacts.filter(impact =>
+                            impact.impact !== currentImpactData.impact &&
+                            impact.entity !== currentImpactData.entity
+                        );
+                    }
+
+                    // If no valid impacts found (shouldn't happen with diverse data), 
+                    // just filter out the exact same impact
+                    if (availableImpacts.length === 0 && currentImpactData) {
+                        availableImpacts = impacts.filter(impact =>
+                            impact.id !== currentImpactData.id
+                        );
+                    }
+
+                    // Final fallback to prevent infinite loop
+                    if (availableImpacts.length === 0) {
+                        availableImpacts = impacts;
+                    }
+
+                    return availableImpacts[Math.floor(Math.random() * availableImpacts.length)];
+                };
+
+                const nextImpact = getNextImpact();
+                setCurrentImpactData(nextImpact);
+            }
+            setIsTransitioning(false);
+        }, 300);
+    }, [impacts, currentImpactData, currentIndex]);
 
     useEffect(() => {
         fetch('/data/impacts.json')
@@ -22,9 +78,9 @@ export default function Home() {
             .then((data: Impact[]) => {
                 setImpacts(data);
                 if (data.length > 0) {
-                    const firstImpact = data[Math.floor(Math.random() * data.length)];
-                    setCurrentImpact(firstImpact.impact);
-                    setCurrentImpactData(firstImpact);
+                    const startIndex = SEQUENTIAL_MODE ? 0 : Math.floor(Math.random() * data.length);
+                    setCurrentIndex(startIndex);
+                    setCurrentImpactData(data[startIndex]);
                 }
                 setLoading(false);
             })
@@ -34,82 +90,48 @@ export default function Home() {
             });
     }, []);
 
+    // Auto-advance effect
     useEffect(() => {
         if (impacts.length > 0) {
             const interval = setInterval(() => {
-                setIsTransitioning(true);
-
-                // Start fade out
-                setTimeout(() => {
-                    // Get next impact ensuring no consecutive duplicates
-                    const getNextImpact = (): Impact => {
-                        if (impacts.length <= 1) {
-                            return impacts[0];
-                        }
-
-                        let availableImpacts = impacts;
-
-                        // Filter out impacts with same sentence or entity as current
-                        if (currentImpactData) {
-                            availableImpacts = impacts.filter(impact =>
-                                impact.impact !== currentImpactData.impact &&
-                                impact.entity !== currentImpactData.entity
-                            );
-                        }
-
-                        // If no valid impacts found (shouldn't happen with diverse data), 
-                        // just filter out the exact same impact
-                        if (availableImpacts.length === 0 && currentImpactData) {
-                            availableImpacts = impacts.filter(impact =>
-                                impact.id !== currentImpactData.id
-                            );
-                        }
-
-                        // Final fallback to prevent infinite loop
-                        if (availableImpacts.length === 0) {
-                            availableImpacts = impacts;
-                        }
-
-                        return availableImpacts[Math.floor(Math.random() * availableImpacts.length)];
-                    };
-
-                    const nextImpact = getNextImpact();
-                    setCurrentImpact(nextImpact.impact);
-                    setCurrentImpactData(nextImpact);
-                    setIsTransitioning(false);
-                }, 300); // Half of transition duration
-            }, 5000);
+                goToNext();
+            }, AUTO_ADVANCE_INTERVAL);
             return () => clearInterval(interval);
         }
-    }, [impacts, currentImpactData]);
+    }, [impacts, goToNext]);
 
-    // --- Typography helpers -------------------------------------------------
-    // Prevent a single orphan word by binding the last two words with \u00A0.
-    const preventOrphan = (text: string) => {
-        const words = text.trim().split(' ');
-        if (words.length < 2) return text;
-        return words.slice(0, -1).join(' ') + '\u00A0' + words[words.length - 1];
+    // Keyboard navigation
+    useEffect(() => {
+        const handleKeyPress = (event: KeyboardEvent) => {
+            if (event.key === 'n' || event.key === 'N') {
+                goToNext();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+    }, [goToNext]);
+
+    // Render text with highlight at the beginning
+    const renderTextWithHighlight = (impact: Impact) => {
+        const { highlightedText, remainingText } = parseTextWithHighlight(impact.impact, impact.highlight);
+
+        return (
+            <>
+                {highlightedText && (
+                    <span className="text-un-blue font-medium">{highlightedText}</span>
+                )}
+                {remainingText && (
+                    <span className="font-normal">{remainingText}</span>
+                )}
+            </>
+        );
     };
 
-    // Highlight first word of each sentence (keeps punctuation), applied AFTER orphan fix.
-    const renderTextWithFirstWords = (text: string) => {
-        const sentences = text.split(/([.!?]+\s+)/).filter(Boolean);
-        return sentences.map((sentence, index) => {
-            if (/^[.!?\s]+$/.test(sentence)) return sentence;
-            const words = sentence.split(/(\s+)/);
-            if (words.length === 0) return sentence;
-            const firstWord = words[0];
-            const restOfSentence = words.slice(1).join('');
-            return (
-                <span key={index}>
-                    <span className="text-un-blue font-medium">{firstWord}</span>
-                    <span className="font-normal">{restOfSentence}</span>
-                </span>
-            );
-        });
-    };
-
-    const prettyImpact = useMemo(() => preventOrphan(currentImpact), [currentImpact]);
+    const prettyImpact = useMemo(() => {
+        if (!currentImpactData?.impact) return '';
+        return preventOrphan(currentImpactData.impact.trim());
+    }, [currentImpactData?.impact]);
 
     // --- Layout knobs (set-and-forget) --------------------------------------
     // TUNE THESE THREE values to position everything.
@@ -163,7 +185,7 @@ export default function Home() {
                                 wordBreak: 'normal',
                             }}
                         >
-                            {renderTextWithFirstWords(prettyImpact)}
+                            {currentImpactData && renderTextWithHighlight({ ...currentImpactData, impact: prettyImpact })}
                         </p>
                     )}
                 </div>
@@ -175,6 +197,15 @@ export default function Home() {
                     Impacts extracted from the 2024 Annual Reports of UN system entities. This is an unofficial site.
                 </p>
             </footer>
+
+            {/* Sequential mode ID indicator */}
+            {SEQUENTIAL_MODE && currentImpactData && (
+                <div className="fixed bottom-4 right-4 pointer-events-none">
+                    <p className="text-xs text-muted-foreground/20">
+                        #{currentImpactData.id}
+                    </p>
+                </div>
+            )}
         </div>
     );
 }

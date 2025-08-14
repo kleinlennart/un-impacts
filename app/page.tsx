@@ -172,7 +172,7 @@ export default function Home() {
             {/* Footnote */}
             <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
                 <p className="text-xs text-muted-foreground/40 text-center px-4">
-                    Impacts extracted from 2024 Annual Reports for UN system entities. This is an unoffical site.
+                    Impacts extracted from the 2024 Annual Reports of UN system entities. This is an unofficial site.
                 </p>
             </footer>
         </div>

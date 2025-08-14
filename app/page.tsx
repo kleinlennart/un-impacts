@@ -7,6 +7,7 @@ import { preventOrphan, parseTextWithHighlight } from '@/lib/utils';
 // Configuration constants
 const SEQUENTIAL_MODE = false; // Set to true for sequential navigation, false for random
 const AUTO_ADVANCE_INTERVAL = 5000; // milliseconds
+const OVERWRITE_ID = null; // Set to a specific ID number to show only that impact, or null to disable
 
 interface Impact {
     id: number;
@@ -76,11 +77,18 @@ export default function Home() {
         fetch('/api/impacts')
             .then((r) => r.json())
             .then((data: Impact[]) => {
-                setImpacts(data);
-                if (data.length > 0) {
-                    const startIndex = SEQUENTIAL_MODE ? 0 : Math.floor(Math.random() * data.length);
+                // If OVERWRITE_ID is set, filter to show only that impact
+                const filteredData = OVERWRITE_ID !== null 
+                    ? data.filter(impact => impact.id === OVERWRITE_ID)
+                    : data;
+                
+                setImpacts(filteredData);
+                if (filteredData.length > 0) {
+                    const startIndex = SEQUENTIAL_MODE ? 0 : Math.floor(Math.random() * filteredData.length);
                     setCurrentIndex(startIndex);
-                    setCurrentImpactData(data[startIndex]);
+                    setCurrentImpactData(filteredData[startIndex]);
+                } else if (OVERWRITE_ID !== null) {
+                    console.warn(`Impact with ID ${OVERWRITE_ID} not found`);
                 }
                 setLoading(false);
             })
@@ -90,9 +98,9 @@ export default function Home() {
             });
     }, []);
 
-    // Auto-advance effect
+    // Auto-advance effect (disabled when showing single impact)
     useEffect(() => {
-        if (impacts.length > 0) {
+        if (impacts.length > 1 && OVERWRITE_ID === null) {
             const interval = setInterval(() => {
                 goToNext();
             }, AUTO_ADVANCE_INTERVAL);
@@ -199,6 +207,15 @@ export default function Home() {
                 <div className="fixed bottom-4 right-4 pointer-events-none">
                     <p className="text-xs text-muted-foreground/20">
                         #{currentImpactData.id}
+                    </p>
+                </div>
+            )}
+
+            {/* Overwrite mode indicator */}
+            {OVERWRITE_ID !== null && currentImpactData && (
+                <div className="fixed top-4 right-4 pointer-events-none z-50">
+                    <p className="text-sm text-white bg-red-600 px-3 py-2 rounded shadow-lg">
+                        Showing ID #{OVERWRITE_ID}
                     </p>
                 </div>
             )}

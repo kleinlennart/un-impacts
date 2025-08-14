@@ -14,5 +14,5 @@
     "editor.wrappingIndent": "indent",
     "jupyter.interactiveWindow.textEditor.executeSelection": true,
     // "editor.renderWhitespace": "all",
-    "editor.renderControlCharacters": false
+    // "editor.renderControlCharacters": true
 }

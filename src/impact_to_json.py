@@ -6,8 +6,8 @@ import pandas as pd
 data_folder = Path("data")
 
 # load data
-csv_path = data_folder / "input" / "impacts.csv"
-df = pd.read_csv(csv_path)
+csv_path = data_folder / "input" / "impacts.tsv"
+df = pd.read_csv(csv_path, sep="\t")
 
 # convert to JSON
 json_data = df.to_dict("records")

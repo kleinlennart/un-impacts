@@ -6,7 +6,7 @@ import { preventOrphan, parseTextWithHighlight } from '@/lib/utils';
 
 // Configuration constants
 const SEQUENTIAL_MODE = false; // Set to true for sequential navigation, false for random
-const AUTO_ADVANCE_INTERVAL = 5000; // milliseconds
+const AUTO_ADVANCE_INTERVAL = 10000; // milliseconds
 const OVERWRITE_ID = null; // Set to a specific ID number to show only that impact, or null to disable
 
 interface Impact {

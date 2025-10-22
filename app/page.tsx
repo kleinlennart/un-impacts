@@ -159,17 +159,17 @@ export default function Home() {
                 style={{ paddingTop: 'calc(var(--logo-top) + var(--logo-h) + var(--gap))' }}
                 className="h-screen bg-background px-4 sm:px-6 flex justify-center overflow-hidden"
             >
-                {/* Fixed UN logo at a precise viewport position (does not move) */}
+                {/* Fixed UN logo in top-left corner - responsive sizing */}
                 <div
-                    className="fixed left-1/2 -translate-x-1/2 pointer-events-none select-none"
-                    style={{ top: 'var(--logo-top)', zIndex: 10 }}
+                    className="fixed top-6 left-4 sm:top-8 sm:left-6 md:top-10 md:left-8 lg:top-12 lg:left-10 pointer-events-none select-none"
+                    style={{ zIndex: 10 }}
                 >
                     <Image
                         src="/images/UN Logo_Horizontal_English/Colour/UN Logo_Horizontal_Colour_English.svg"
                         alt="UN Logo"
                         width={320}
                         height={80}
-                        className="h-20 w-auto sm:h-20" // 5rem; keep in sync with --logo-h
+                        className="h-12 w-auto sm:h-14 md:h-16 lg:h-20 xl:h-24"
                         draggable="false"
                         priority
                     />

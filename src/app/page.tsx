@@ -1,7 +1,7 @@
 'use client';
 
 import { DEFAULT_IMPACT_CONFIG, KEYBOARD_SHORTCUTS, TRANSITION_DURATION } from '@/lib/constants';
-import { fetchImpacts, getNextImpact, getRandomImpact } from '@/lib/data/impacts';
+import { fetchImpacts, getNextImpact, getPreviousImpact, getRandomImpact } from '@/lib/data/impacts';
 import type { Impact } from '@/lib/types/impact';
 import { parseTextWithHighlight, preventOrphan } from '@/lib/utils';
 import Image from 'next/image';
@@ -34,6 +34,27 @@ export default function Home() {
                 const nextImpact = getRandomImpact(impacts, currentImpactData || undefined);
                 if (nextImpact) {
                     setCurrentImpactData(nextImpact);
+                }
+            }
+            setIsTransitioning(false);
+        }, TRANSITION_DURATION);
+    }, [impacts, currentImpactData, currentIndex]);
+
+    // Function to go to previous impact
+    const goToPrevious = useCallback(() => {
+        if (impacts.length === 0) return;
+
+        setIsTransitioning(true);
+        setTimeout(() => {
+            if (CONFIG.sequentialMode) {
+                const prev = getPreviousImpact(impacts, currentIndex);
+                setCurrentIndex(prev.index);
+                setCurrentImpactData(prev.impact);
+            } else {
+                // Random mode
+                const prevImpact = getRandomImpact(impacts, currentImpactData || undefined);
+                if (prevImpact) {
+                    setCurrentImpactData(prevImpact);
                 }
             }
             setIsTransitioning(false);
@@ -78,15 +99,19 @@ export default function Home() {
     // Keyboard navigation
     useEffect(() => {
         const handleKeyPress = (event: KeyboardEvent) => {
-            const validKeys: readonly string[] = KEYBOARD_SHORTCUTS.NEXT_IMPACT;
-            if (validKeys.includes(event.key)) {
+            const nextKeys: readonly string[] = KEYBOARD_SHORTCUTS.NEXT_IMPACT;
+            const prevKeys: readonly string[] = KEYBOARD_SHORTCUTS.PREV_IMPACT;
+            
+            if (nextKeys.includes(event.key)) {
                 goToNext();
+            } else if (prevKeys.includes(event.key)) {
+                goToPrevious();
             }
         };
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [goToNext]);
+    }, [goToNext, goToPrevious]);
 
     // Render text with highlight at the beginning
     const renderTextWithHighlight = (impact: Impact) => {

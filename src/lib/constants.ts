@@ -24,4 +24,5 @@ export const TRANSITION_DURATION = 300;
  */
 export const KEYBOARD_SHORTCUTS = {
     NEXT_IMPACT: ['ArrowRight'] as const,
+    PREV_IMPACT: ['ArrowLeft'] as const,
 } as const;

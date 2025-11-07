@@ -154,3 +154,24 @@ export function getNextImpact(
         index: nextIndex,
     };
 }
+
+/**
+ * Gets the previous impact in sequential order
+ * @param impacts - Array of all impacts
+ * @param currentIndex - Current impact index
+ * @returns Previous impact and its index
+ */
+export function getPreviousImpact(
+    impacts: Impact[],
+    currentIndex: number
+): { impact: Impact; index: number } {
+    if (impacts.length === 0) {
+        throw new Error('No impacts available');
+    }
+
+    const prevIndex = (currentIndex - 1 + impacts.length) % impacts.length;
+    return {
+        impact: impacts[prevIndex],
+        index: prevIndex,
+    };
+}

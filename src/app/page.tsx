@@ -153,9 +153,9 @@ export default function Home() {
                     {!loading && currentImpactData && (
                         <p
                             className={`text-foreground 
-                                        text-2xl sm:text-3xl md:text-4xl 
+                                        text-3xl sm:text-4xl md:text-5xl 
                                         leading-relaxed tracking-tight
-                                        portrait:text-4xl portrait:sm:text-5xl portrait:md:text-6xl portrait:lg:text-7xl 
+                                        portrait:text-5xl portrait:sm:text-6xl portrait:md:text-7xl portrait:lg:text-8xl 
                                         portrait:leading-tight portrait:tracking-tighter
                                         transition-all duration-600 ease-out transform ${isTransitioning
                                 ? 'opacity-0 -translate-x-4 scale-95'

@@ -95,7 +95,7 @@ export default function Home() {
         return (
             <>
                 {highlightedText && (
-                    <span className="text-un-blue font-medium">{highlightedText}</span>
+                    <span className="text-un-blue font-bold">{highlightedText}</span>
                 )}
                 {remainingText && (
                     <span className="font-normal">{remainingText}</span>
@@ -125,29 +125,36 @@ export default function Home() {
             <main
                 // Text always starts beneath the fixed logo; adjust only the vars above.
                 style={{ paddingTop: 'calc(var(--logo-top) + var(--logo-h) + var(--gap))' }}
-                className="h-screen bg-background px-4 sm:px-6 flex justify-center overflow-hidden"
+                className="h-screen bg-background px-4 sm:px-6 flex justify-center overflow-hidden
+                           portrait:flex portrait:justify-center portrait:items-center portrait:!pt-0"
             >
-                {/* Fixed UN logo in top-left corner - responsive sizing */}
+                {/* Fixed UN logo - responsive positioning for landscape and portrait */}
                 <div
-                    className="fixed top-6 left-4 sm:top-8 sm:left-6 md:top-10 md:left-8 lg:top-12 lg:left-10 pointer-events-none select-none"
+                    className="fixed top-6 left-4 sm:top-8 sm:left-6 md:top-10 md:left-8 lg:top-12 lg:left-10 
+                               pointer-events-none select-none
+                               portrait:top-8 portrait:left-6 portrait:md:top-12 portrait:md:left-10"
                     style={{ zIndex: 10 }}
                 >
                     <Image
-                        src={`${basePath}/images/UN_Logo_Horizontal_Colour_English.svg`}
+                        src={`${basePath}/images/UN_Logo_Stacked_Colour_English.svg`}
                         alt="UN Logo"
                         width={320}
                         height={80}
-                        className="h-12 w-auto sm:h-14 md:h-16 lg:h-20 xl:h-24"
+                        className="h-12 w-auto sm:h-14 md:h-16 lg:h-20 xl:h-24
+                                   portrait:h-16 portrait:sm:h-20 portrait:md:h-24 portrait:lg:h-28"
                         draggable="false"
                         priority
                     />
                 </div>
 
                 {/* Text flows downward only, orphan-proofed, with balanced wrapping */}
-                <div className="max-w-2xl text-center w-full">
+                <div className="max-w-2xl text-center w-full
+                                portrait:max-w-4xl portrait:px-8 portrait:md:px-12 portrait:lg:px-16">
                     {!loading && currentImpactData && (
                         <p
-                            className={`text-foreground text-xl sm:text-2xl md:text-3xl leading-normal transition-all duration-600 ease-out transform ${isTransitioning
+                            className={`text-foreground text-xl sm:text-2xl md:text-3xl leading-normal 
+                                        portrait:text-3xl portrait:sm:text-4xl portrait:md:text-5xl portrait:lg:text-6xl portrait:leading-snug
+                                        transition-all duration-600 ease-out transform ${isTransitioning
                                 ? 'opacity-0 -translate-x-4 scale-95'
                                 : 'opacity-100 translate-x-0 scale-100'
                                 }`}
@@ -163,8 +170,9 @@ export default function Home() {
 
             {/* Footnote */}
             <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
-                <p className="text-xs text-muted-foreground/40 text-center px-4">
-                    Impacts extracted from the 2024 Annual Reports of UN System entities.<br />This is an unofficial site.
+                <p className="text-xs text-gray-400 text-center px-4 whitespace-nowrap
+                              portrait:text-sm portrait:md:text-base">
+                    Impacts extracted from 2024 Annual Reports of UN System entities.<br />This is an unofficial site.
                 </p>
             </footer>
 

@@ -7,6 +7,8 @@ import { parseTextWithHighlight, preventOrphan } from '@/lib/utils';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
 // Configuration - modify DEFAULT_IMPACT_CONFIG in lib/constants.ts to change defaults
 const CONFIG = DEFAULT_IMPACT_CONFIG;
 
@@ -130,7 +132,7 @@ export default function Home() {
                     style={{ zIndex: 10 }}
                 >
                     <Image
-                        src="/images/UN Logo_Horizontal_English/Colour/UN Logo_Horizontal_Colour_English.svg"
+                        src={`${basePath}/images/UN_Logo_Horizontal_Colour_English.svg`}
                         alt="UN Logo"
                         width={320}
                         height={80}

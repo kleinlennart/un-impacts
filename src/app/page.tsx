@@ -65,14 +65,15 @@ export default function Home() {
     }, []);
 
     // Auto-advance effect (disabled when showing single impact)
+    // Resets timer whenever currentImpactData changes
     useEffect(() => {
-        if (impacts.length > 1 && CONFIG.overwriteId === null) {
+        if (impacts.length > 1 && CONFIG.overwriteId === null && currentImpactData) {
             const interval = setInterval(() => {
                 goToNext();
             }, CONFIG.autoAdvanceInterval);
             return () => clearInterval(interval);
         }
-    }, [impacts, goToNext]);
+    }, [impacts, goToNext, currentImpactData]);
 
     // Keyboard navigation
     useEffect(() => {

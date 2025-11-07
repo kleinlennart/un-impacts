@@ -23,5 +23,5 @@ export const TRANSITION_DURATION = 300;
  * Keyboard shortcuts
  */
 export const KEYBOARD_SHORTCUTS = {
-  NEXT_IMPACT: ['n', 'N'] as const,
+  NEXT_IMPACT: ['ArrowRight'] as const,
 } as const;

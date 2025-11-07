@@ -6,6 +6,16 @@ import type { Impact } from '@/lib/types/impact';
 import { parseTextWithHighlight, preventOrphan } from '@/lib/utils';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -18,6 +28,8 @@ export default function Home() {
     const [impacts, setImpacts] = useState<Impact[]>([]);
     const [loading, setLoading] = useState(true);
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [jumpDialogOpen, setJumpDialogOpen] = useState(false);
+    const [jumpValue, setJumpValue] = useState('');
 
     // Function to go to next impact
     const goToNext = useCallback(() => {
@@ -61,6 +73,32 @@ export default function Home() {
         }, TRANSITION_DURATION);
     }, [impacts, currentImpactData, currentIndex]);
 
+    // Function to jump to specific index by ID
+    const jumpToId = useCallback((id: number) => {
+        if (impacts.length === 0) return;
+
+        const targetIndex = impacts.findIndex(impact => impact.id === id);
+        if (targetIndex !== -1) {
+            setIsTransitioning(true);
+            setTimeout(() => {
+                setCurrentIndex(targetIndex);
+                setCurrentImpactData(impacts[targetIndex]);
+                setIsTransitioning(false);
+            }, TRANSITION_DURATION);
+        }
+    }, [impacts]);
+
+    // Handle jump dialog submission
+    const handleJumpSubmit = useCallback((e?: React.FormEvent) => {
+        e?.preventDefault();
+        const id = parseInt(jumpValue, 10);
+        if (!isNaN(id) && id > 0) {
+            jumpToId(id);
+            setJumpDialogOpen(false);
+            setJumpValue('');
+        }
+    }, [jumpValue, jumpToId]);
+
     useEffect(() => {
         fetchImpacts()
             .then((data: Impact[]) => {
@@ -101,11 +139,14 @@ export default function Home() {
         const handleKeyPress = (event: KeyboardEvent) => {
             const nextKeys: readonly string[] = KEYBOARD_SHORTCUTS.NEXT_IMPACT;
             const prevKeys: readonly string[] = KEYBOARD_SHORTCUTS.PREV_IMPACT;
+            const jumpKeys: readonly string[] = KEYBOARD_SHORTCUTS.JUMP_TO_INDEX;
             
             if (nextKeys.includes(event.key)) {
                 goToNext();
             } else if (prevKeys.includes(event.key)) {
                 goToPrevious();
+            } else if (jumpKeys.includes(event.key) && CONFIG.sequentialMode) {
+                setJumpDialogOpen(true);
             }
         };
 
@@ -221,6 +262,39 @@ export default function Home() {
                         Showing ID #{CONFIG.overwriteId}
                     </p>
                 </div>
+            )}
+
+            {/* Jump to Index Dialog */}
+            {CONFIG.sequentialMode && (
+                <Dialog open={jumpDialogOpen} onOpenChange={setJumpDialogOpen}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Jump to Impact</DialogTitle>
+                            <DialogDescription>
+                                Enter the impact ID number to jump to.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleJumpSubmit}>
+                            <div className="flex items-center space-x-2">
+                                <Input
+                                    type="number"
+                                    placeholder="Enter ID..."
+                                    value={jumpValue}
+                                    onChange={(e) => setJumpValue(e.target.value)}
+                                    min="1"
+                                    autoFocus
+                                    className="flex-1"
+                                />
+                                <Button type="submit">Go</Button>
+                            </div>
+                        </form>
+                        <DialogFooter className="sm:justify-start">
+                            <p className="text-sm text-muted-foreground">
+                                Press Enter to jump or Esc to cancel
+                            </p>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             )}
         </div>
     );

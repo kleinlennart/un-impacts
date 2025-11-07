@@ -191,7 +191,7 @@ export default function Home() {
             <main
                 // Text always starts beneath the fixed logo; adjust only the vars above.
                 style={{ paddingTop: 'calc(var(--logo-top) + var(--logo-h) + var(--gap))' }}
-                className="h-screen bg-background px-4 sm:px-6 flex justify-center overflow-hidden
+                className="h-screen bg-background flex justify-center items-start overflow-hidden
                            portrait:flex portrait:justify-center portrait:items-center portrait:!pt-0"
             >
                 {/* Fixed UN logo - responsive positioning for landscape and portrait */}
@@ -213,28 +213,30 @@ export default function Home() {
                     />
                 </div>
 
-                {/* Text flows downward only, orphan-proofed, with balanced wrapping */}
-                <div className="max-w-2xl text-left w-full
-                                portrait:max-w-5xl portrait:px-12 portrait:md:px-16 portrait:lg:px-20">
-                    {!loading && currentImpactData && (
-                        <p
-                            className={`text-foreground 
-                                        text-3xl sm:text-4xl md:text-5xl 
-                                        leading-relaxed tracking-tight
-                                        portrait:text-5xl portrait:sm:text-6xl portrait:md:text-7xl portrait:lg:text-8xl 
-                                        portrait:leading-tight portrait:tracking-tighter
-                                        transition-all duration-600 ease-out transform ${isTransitioning
-                                ? 'opacity-0 -translate-x-4 scale-95'
-                                : 'opacity-100 translate-x-0 scale-100'
-                                }`}
-                            style={{
-                                textWrap: 'pretty', // optimized for readability in left-aligned text
-                                letterSpacing: '-0.02em', // slightly tighter for large text
-                            }}
-                        >
-                            {currentImpactData && renderTextWithHighlight({ ...currentImpactData, impact: prettyImpact })}
-                        </p>
-                    )}
+                {/* Text box with fixed margins - keeps same distance from left and right */}
+                <div className="w-full pl-12 pr-12 sm:pl-16 sm:pr-16 md:pl-20 md:pr-20 lg:pl-24 lg:pr-24 xl:pl-32 xl:pr-32
+                                portrait:pl-16 portrait:pr-32 portrait:md:pl-20 portrait:md:pr-40 portrait:lg:pl-24 portrait:lg:pr-48">
+                    <div className="text-left">
+                        {!loading && currentImpactData && (
+                            <p
+                                className={`text-foreground 
+                                            text-3xl sm:text-4xl md:text-5xl 
+                                            leading-relaxed tracking-tight
+                                            portrait:text-5xl portrait:sm:text-6xl portrait:md:text-7xl portrait:lg:text-8xl 
+                                            portrait:leading-tight portrait:tracking-tighter
+                                            transition-all duration-600 ease-out transform ${isTransitioning
+                                    ? 'opacity-0 -translate-x-4 scale-95'
+                                    : 'opacity-100 translate-x-0 scale-100'
+                                    }`}
+                                style={{
+                                    textWrap: 'pretty', // optimized for readability in left-aligned text
+                                    letterSpacing: '-0.02em', // slightly tighter for large text
+                                }}
+                            >
+                                {currentImpactData && renderTextWithHighlight({ ...currentImpactData, impact: prettyImpact })}
+                            </p>
+                        )}
+                    </div>
                 </div>
             </main>
 
@@ -248,8 +250,8 @@ export default function Home() {
 
             {/* Sequential mode ID indicator */}
             {CONFIG.sequentialMode && currentImpactData && (
-                <div className="fixed bottom-4 right-4 pointer-events-none">
-                    <p className="text-base text-gray-400 portrait:text-lg">
+                <div className="fixed bottom-2 right-5 pointer-events-none">
+                    <p className="text-base text-gray-400 portrait:text-lg font-mono tabular-nums">
                         #{currentImpactData.id}
                     </p>
                 </div>

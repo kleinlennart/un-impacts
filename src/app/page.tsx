@@ -161,7 +161,7 @@ export default function Home() {
         return (
             <>
                 {highlightedText && (
-                    <span className="text-un-blue font-extrabold">{highlightedText}</span>
+                    <span className="text-un-blue font-extrabold text-[1.1em]">{highlightedText}</span>
                 )}
                 {remainingText && (
                     <span className="font-normal">{remainingText}</span>
@@ -222,7 +222,7 @@ export default function Home() {
                             <p
                                 className={`text-foreground 
                                             text-3xl sm:text-4xl md:text-5xl 
-                                            leading-relaxed tracking-tight
+                                            leading-normal tracking-tight
                                             portrait:text-4xl portrait:sm:text-5xl portrait:md:text-6xl portrait:lg:text-7xl 
                                             portrait:leading-tight portrait:tracking-tighter
                                             transition-all duration-600 ease-out transform ${isTransitioning

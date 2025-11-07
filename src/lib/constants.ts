@@ -9,7 +9,7 @@ import type { ImpactDisplayConfig } from './types/impact';
  * - overwriteId: Set to a specific impact ID to show only that impact (useful for debugging)
  */
 export const DEFAULT_IMPACT_CONFIG: ImpactDisplayConfig = {
-    sequentialMode: true,
+    sequentialMode: false,
     autoAdvanceInterval: 10000, // 10 seconds
     overwriteId: null,
 };

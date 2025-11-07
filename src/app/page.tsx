@@ -161,7 +161,7 @@ export default function Home() {
         return (
             <>
                 {highlightedText && (
-                    <span className="text-un-blue font-bold">{highlightedText}</span>
+                    <span className="text-un-blue font-extrabold">{highlightedText}</span>
                 )}
                 {remainingText && (
                     <span className="font-normal">{remainingText}</span>

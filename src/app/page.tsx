@@ -208,7 +208,7 @@ export default function Home() {
             {/* Sequential mode ID indicator */}
             {CONFIG.sequentialMode && currentImpactData && (
                 <div className="fixed bottom-4 right-4 pointer-events-none">
-                    <p className="text-xs text-muted-foreground/20">
+                    <p className="text-base text-gray-400 portrait:text-lg">
                         #{currentImpactData.id}
                     </p>
                 </div>

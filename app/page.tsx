@@ -1,20 +1,14 @@
 'use client';
 
+import { DEFAULT_IMPACT_CONFIG, KEYBOARD_SHORTCUTS, TRANSITION_DURATION } from '@/lib/constants';
+import { fetchImpacts, getNextImpact, getRandomImpact } from '@/lib/data/impacts';
+import type { Impact } from '@/lib/types/impact';
+import { parseTextWithHighlight, preventOrphan } from '@/lib/utils';
 import Image from 'next/image';
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { preventOrphan, parseTextWithHighlight } from '@/lib/utils';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-// Configuration constants
-const SEQUENTIAL_MODE = false; // Set to true for sequential navigation, false for random
-const AUTO_ADVANCE_INTERVAL = 10000; // milliseconds
-const OVERWRITE_ID = null; // Set to a specific ID number to show only that impact, or null to disable
-
-interface Impact {
-    id: number;
-    entity: string;
-    highlight: string;
-    impact: string;
-}
+// Configuration - modify DEFAULT_IMPACT_CONFIG in lib/constants.ts to change defaults
+const CONFIG = DEFAULT_IMPACT_CONFIG;
 
 export default function Home() {
     const [currentImpactData, setCurrentImpactData] = useState<Impact | null>(null);
@@ -29,66 +23,36 @@ export default function Home() {
 
         setIsTransitioning(true);
         setTimeout(() => {
-            if (SEQUENTIAL_MODE) {
-                const nextIndex = (currentIndex + 1) % impacts.length;
-                setCurrentIndex(nextIndex);
-                setCurrentImpactData(impacts[nextIndex]);
+            if (CONFIG.sequentialMode) {
+                const next = getNextImpact(impacts, currentIndex);
+                setCurrentIndex(next.index);
+                setCurrentImpactData(next.impact);
             } else {
-                // Random mode - existing logic
-                const getNextImpact = (): Impact => {
-                    if (impacts.length <= 1) {
-                        return impacts[0];
-                    }
-
-                    let availableImpacts = impacts;
-
-                    // Filter out impacts with same sentence or entity as current
-                    if (currentImpactData) {
-                        availableImpacts = impacts.filter(impact =>
-                            impact.impact !== currentImpactData.impact &&
-                            impact.entity !== currentImpactData.entity
-                        );
-                    }
-
-                    // If no valid impacts found (shouldn't happen with diverse data), 
-                    // just filter out the exact same impact
-                    if (availableImpacts.length === 0 && currentImpactData) {
-                        availableImpacts = impacts.filter(impact =>
-                            impact.id !== currentImpactData.id
-                        );
-                    }
-
-                    // Final fallback to prevent infinite loop
-                    if (availableImpacts.length === 0) {
-                        availableImpacts = impacts;
-                    }
-
-                    return availableImpacts[Math.floor(Math.random() * availableImpacts.length)];
-                };
-
-                const nextImpact = getNextImpact();
-                setCurrentImpactData(nextImpact);
+                // Random mode
+                const nextImpact = getRandomImpact(impacts, currentImpactData || undefined);
+                if (nextImpact) {
+                    setCurrentImpactData(nextImpact);
+                }
             }
             setIsTransitioning(false);
-        }, 300);
+        }, TRANSITION_DURATION);
     }, [impacts, currentImpactData, currentIndex]);
 
     useEffect(() => {
-        fetch('/api/impacts')
-            .then((r) => r.json())
+        fetchImpacts()
             .then((data: Impact[]) => {
-                // If OVERWRITE_ID is set, filter to show only that impact
-                const filteredData = OVERWRITE_ID !== null 
-                    ? data.filter(impact => impact.id === OVERWRITE_ID)
+                // If overwriteId is set, filter to show only that impact
+                const filteredData = CONFIG.overwriteId !== null
+                    ? data.filter(impact => impact.id === CONFIG.overwriteId)
                     : data;
-                
+
                 setImpacts(filteredData);
                 if (filteredData.length > 0) {
-                    const startIndex = SEQUENTIAL_MODE ? 0 : Math.floor(Math.random() * filteredData.length);
+                    const startIndex = CONFIG.sequentialMode ? 0 : Math.floor(Math.random() * filteredData.length);
                     setCurrentIndex(startIndex);
                     setCurrentImpactData(filteredData[startIndex]);
-                } else if (OVERWRITE_ID !== null) {
-                    console.warn(`Impact with ID ${OVERWRITE_ID} not found`);
+                } else if (CONFIG.overwriteId !== null) {
+                    console.warn(`Impact with ID ${CONFIG.overwriteId} not found`);
                 }
                 setLoading(false);
             })
@@ -100,10 +64,10 @@ export default function Home() {
 
     // Auto-advance effect (disabled when showing single impact)
     useEffect(() => {
-        if (impacts.length > 1 && OVERWRITE_ID === null) {
+        if (impacts.length > 1 && CONFIG.overwriteId === null) {
             const interval = setInterval(() => {
                 goToNext();
-            }, AUTO_ADVANCE_INTERVAL);
+            }, CONFIG.autoAdvanceInterval);
             return () => clearInterval(interval);
         }
     }, [impacts, goToNext]);
@@ -111,7 +75,8 @@ export default function Home() {
     // Keyboard navigation
     useEffect(() => {
         const handleKeyPress = (event: KeyboardEvent) => {
-            if (event.key === 'n' || event.key === 'N') {
+            const validKeys: readonly string[] = KEYBOARD_SHORTCUTS.NEXT_IMPACT;
+            if (validKeys.includes(event.key)) {
                 goToNext();
             }
         };
@@ -196,12 +161,12 @@ export default function Home() {
             {/* Footnote */}
             <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
                 <p className="text-xs text-muted-foreground/40 text-center px-4">
-                    Impacts extracted from the 2024 Annual Reports of UN system entities.<br />This is an unofficial site.
+                    Impacts extracted from the 2024 Annual Reports of UN System entities.<br />This is an unofficial site.
                 </p>
             </footer>
 
             {/* Sequential mode ID indicator */}
-            {SEQUENTIAL_MODE && currentImpactData && (
+            {CONFIG.sequentialMode && currentImpactData && (
                 <div className="fixed bottom-4 right-4 pointer-events-none">
                     <p className="text-xs text-muted-foreground/20">
                         #{currentImpactData.id}
@@ -210,10 +175,10 @@ export default function Home() {
             )}
 
             {/* Overwrite mode indicator */}
-            {OVERWRITE_ID !== null && currentImpactData && (
+            {CONFIG.overwriteId !== null && currentImpactData && (
                 <div className="fixed top-4 right-4 pointer-events-none z-50">
                     <p className="text-sm text-white bg-red-600 px-3 py-2 rounded shadow-lg">
-                        Showing ID #{OVERWRITE_ID}
+                        Showing ID #{CONFIG.overwriteId}
                     </p>
                 </div>
             )}

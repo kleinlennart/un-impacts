@@ -4,12 +4,12 @@ import type { Impact, ImpactStats } from '@/lib/types/impact';
  * Base path for data files - adjusts based on environment
  */
 const getBasePath = (): string => {
-  if (typeof window === 'undefined') {
-    // Server-side: use relative path during build
-    return '';
-  }
-  // Client-side: use basePath if in production
-  return process.env.NODE_ENV === 'production' ? '/un-impacts' : '';
+    if (typeof window === 'undefined') {
+        // Server-side: use relative path during build
+        return '';
+    }
+    // Client-side: use basePath if in production
+    return process.env.NODE_ENV === 'production' ? '/un-impacts' : '';
 };
 
 /**
@@ -18,23 +18,23 @@ const getBasePath = (): string => {
  * @throws Error if fetch fails or JSON is invalid
  */
 export async function fetchImpacts(): Promise<Impact[]> {
-  const basePath = getBasePath();
-  const response = await fetch(`${basePath}/data/impacts.json`, {
-    cache: 'no-store',
-  });
+    const basePath = getBasePath();
+    const response = await fetch(`${basePath}/data/impacts.json`, {
+        cache: 'no-store',
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch impacts: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+        throw new Error(`Failed to fetch impacts: ${response.status} ${response.statusText}`);
+    }
 
-  const data = await response.json();
-  
-  // Validate that we received an array
-  if (!Array.isArray(data)) {
-    throw new Error('Invalid impacts data: expected an array');
-  }
+    const data = await response.json();
 
-  return data as Impact[];
+    // Validate that we received an array
+    if (!Array.isArray(data)) {
+        throw new Error('Invalid impacts data: expected an array');
+    }
+
+    return data as Impact[];
 }
 
 /**
@@ -43,8 +43,8 @@ export async function fetchImpacts(): Promise<Impact[]> {
  * @returns Promise resolving to Impact object or null if not found
  */
 export async function fetchImpactById(id: number): Promise<Impact | null> {
-  const impacts = await fetchImpacts();
-  return impacts.find(impact => impact.id === id) || null;
+    const impacts = await fetchImpacts();
+    return impacts.find(impact => impact.id === id) || null;
 }
 
 /**
@@ -53,8 +53,8 @@ export async function fetchImpactById(id: number): Promise<Impact | null> {
  * @returns Promise resolving to array of matching Impact objects
  */
 export async function fetchImpactsByEntity(entity: string): Promise<Impact[]> {
-  const impacts = await fetchImpacts();
-  return impacts.filter(impact => impact.entity === entity);
+    const impacts = await fetchImpacts();
+    return impacts.filter(impact => impact.entity === entity);
 }
 
 /**
@@ -62,14 +62,14 @@ export async function fetchImpactsByEntity(entity: string): Promise<Impact[]> {
  * @returns Promise resolving to ImpactStats object
  */
 export async function getImpactStats(): Promise<ImpactStats> {
-  const impacts = await fetchImpacts();
-  const entities = [...new Set(impacts.map(impact => impact.entity))];
-  
-  return {
-    total: impacts.length,
-    uniqueEntities: entities.length,
-    entities: entities.sort(),
-  };
+    const impacts = await fetchImpacts();
+    const entities = [...new Set(impacts.map(impact => impact.entity))];
+
+    return {
+        total: impacts.length,
+        uniqueEntities: entities.length,
+        entities: entities.sort(),
+    };
 }
 
 /**
@@ -78,18 +78,18 @@ export async function getImpactStats(): Promise<ImpactStats> {
  * @returns true if valid, false otherwise
  */
 export function isValidImpact(impact: unknown): impact is Impact {
-  if (typeof impact !== 'object' || impact === null) {
-    return false;
-  }
+    if (typeof impact !== 'object' || impact === null) {
+        return false;
+    }
 
-  const i = impact as Partial<Impact>;
-  
-  return (
-    typeof i.id === 'number' &&
-    typeof i.entity === 'string' &&
-    typeof i.highlight === 'string' &&
-    typeof i.impact === 'string'
-  );
+    const i = impact as Partial<Impact>;
+
+    return (
+        typeof i.id === 'number' &&
+        typeof i.entity === 'string' &&
+        typeof i.highlight === 'string' &&
+        typeof i.impact === 'string'
+    );
 }
 
 /**
@@ -99,39 +99,39 @@ export function isValidImpact(impact: unknown): impact is Impact {
  * @returns Random impact or null if no impacts available
  */
 export function getRandomImpact(
-  impacts: Impact[],
-  exclude?: Impact
+    impacts: Impact[],
+    exclude?: Impact
 ): Impact | null {
-  if (impacts.length === 0) {
-    return null;
-  }
+    if (impacts.length === 0) {
+        return null;
+    }
 
-  if (impacts.length === 1) {
-    return impacts[0];
-  }
+    if (impacts.length === 1) {
+        return impacts[0];
+    }
 
-  // Filter out impacts with same sentence or entity as excluded impact
-  let availableImpacts = impacts;
-  if (exclude) {
-    availableImpacts = impacts.filter(
-      impact =>
-        impact.impact !== exclude.impact &&
-        impact.entity !== exclude.entity
-    );
-  }
+    // Filter out impacts with same sentence or entity as excluded impact
+    let availableImpacts = impacts;
+    if (exclude) {
+        availableImpacts = impacts.filter(
+            impact =>
+                impact.impact !== exclude.impact &&
+                impact.entity !== exclude.entity
+        );
+    }
 
-  // Fallback to all impacts if filtering left us with none
-  if (availableImpacts.length === 0) {
-    availableImpacts = impacts.filter(impact => impact.id !== exclude?.id);
-  }
+    // Fallback to all impacts if filtering left us with none
+    if (availableImpacts.length === 0) {
+        availableImpacts = impacts.filter(impact => impact.id !== exclude?.id);
+    }
 
-  // Final fallback
-  if (availableImpacts.length === 0) {
-    availableImpacts = impacts;
-  }
+    // Final fallback
+    if (availableImpacts.length === 0) {
+        availableImpacts = impacts;
+    }
 
-  const randomIndex = Math.floor(Math.random() * availableImpacts.length);
-  return availableImpacts[randomIndex];
+    const randomIndex = Math.floor(Math.random() * availableImpacts.length);
+    return availableImpacts[randomIndex];
 }
 
 /**
@@ -141,16 +141,16 @@ export function getRandomImpact(
  * @returns Next impact and its index
  */
 export function getNextImpact(
-  impacts: Impact[],
-  currentIndex: number
+    impacts: Impact[],
+    currentIndex: number
 ): { impact: Impact; index: number } {
-  if (impacts.length === 0) {
-    throw new Error('No impacts available');
-  }
+    if (impacts.length === 0) {
+        throw new Error('No impacts available');
+    }
 
-  const nextIndex = (currentIndex + 1) % impacts.length;
-  return {
-    impact: impacts[nextIndex],
-    index: nextIndex,
-  };
+    const nextIndex = (currentIndex + 1) % impacts.length;
+    return {
+        impact: impacts[nextIndex],
+        index: nextIndex,
+    };
 }

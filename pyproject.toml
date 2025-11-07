@@ -1,7 +1,7 @@
 [project]
 name = "un-impacts"
 version = "0.1.0"
-description = "Add your description here"
+description = "Showcase of impacts across the UN System."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

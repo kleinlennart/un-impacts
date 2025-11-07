@@ -95,7 +95,7 @@ export default function Home() {
         return (
             <>
                 {highlightedText && (
-                    <span className="text-un-blue font-bold">{highlightedText}</span>
+                    <span className="text-un-blue font-bold whitespace-nowrap">{highlightedText}</span>
                 )}
                 {remainingText && (
                     <span className="font-normal">{remainingText}</span>
@@ -148,18 +148,22 @@ export default function Home() {
                 </div>
 
                 {/* Text flows downward only, orphan-proofed, with balanced wrapping */}
-                <div className="max-w-2xl text-center w-full
-                                portrait:max-w-4xl portrait:px-8 portrait:md:px-12 portrait:lg:px-16">
+                <div className="max-w-2xl text-left w-full
+                                portrait:max-w-5xl portrait:px-12 portrait:md:px-16 portrait:lg:px-20">
                     {!loading && currentImpactData && (
                         <p
-                            className={`text-foreground text-xl sm:text-2xl md:text-3xl leading-normal 
-                                        portrait:text-3xl portrait:sm:text-4xl portrait:md:text-5xl portrait:lg:text-6xl portrait:leading-snug
+                            className={`text-foreground 
+                                        text-2xl sm:text-3xl md:text-4xl 
+                                        leading-relaxed tracking-tight
+                                        portrait:text-4xl portrait:sm:text-5xl portrait:md:text-6xl portrait:lg:text-7xl 
+                                        portrait:leading-tight portrait:tracking-tighter
                                         transition-all duration-600 ease-out transform ${isTransitioning
                                 ? 'opacity-0 -translate-x-4 scale-95'
                                 : 'opacity-100 translate-x-0 scale-100'
                                 }`}
                             style={{
-                                textWrap: 'balance', // nicer line balance (supported in modern browsers)
+                                textWrap: 'pretty', // optimized for readability in left-aligned text
+                                letterSpacing: '-0.02em', // slightly tighter for large text
                             }}
                         >
                             {currentImpactData && renderTextWithHighlight({ ...currentImpactData, impact: prettyImpact })}

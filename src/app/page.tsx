@@ -194,9 +194,9 @@ export default function Home() {
             >
                 {/* Fixed UN logo - responsive positioning for landscape and portrait */}
                 <div
-                    className="fixed top-6 left-4 sm:top-8 sm:left-6 md:top-10 md:left-8 lg:top-12 lg:left-10 
+                    className="fixed top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 lg:top-10 lg:left-10 
                                pointer-events-none select-none
-                               portrait:top-8 portrait:left-6 portrait:md:top-12 portrait:md:left-10"
+                               portrait:top-6 portrait:left-6 portrait:md:top-10 portrait:md:left-10"
                     style={{ zIndex: 10 }}
                 >
                     <Image
@@ -204,8 +204,8 @@ export default function Home() {
                         alt="UN Logo"
                         width={320}
                         height={80}
-                        className="h-12 w-auto sm:h-14 md:h-16 lg:h-20 xl:h-24
-                                   portrait:h-16 portrait:sm:h-20 portrait:md:h-24 portrait:lg:h-28"
+                        className="h-6 w-auto sm:h-7 md:h-8 lg:h-10 xl:h-12
+                                   portrait:h-8 portrait:sm:h-10 portrait:md:h-12 portrait:lg:h-14"
                         draggable="false"
                         priority
                     />

@@ -1,25 +1,12 @@
 import type { Impact, ImpactStats } from '@/lib/types/impact';
 
 /**
- * Base path for data files - adjusts based on environment
- */
-const getBasePath = (): string => {
-    if (typeof window === 'undefined') {
-        // Server-side: use relative path during build
-        return '';
-    }
-    // Client-side: use basePath if in production
-    return process.env.NODE_ENV === 'production' ? '/un-impacts' : '';
-};
-
-/**
  * Fetches all impacts from the static JSON file
  * @returns Promise resolving to array of Impact objects
  * @throws Error if fetch fails or JSON is invalid
  */
 export async function fetchImpacts(): Promise<Impact[]> {
-    const basePath = getBasePath();
-    const response = await fetch(`${basePath}/data/impacts.json`, {
+    const response = await fetch('/data/impacts.json', {
         cache: 'no-store',
     });
 

@@ -17,8 +17,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
-
 // Configuration - modify DEFAULT_IMPACT_CONFIG in lib/constants.ts to change defaults
 const CONFIG = DEFAULT_IMPACT_CONFIG;
 
@@ -202,7 +200,7 @@ export default function Home() {
                     style={{ zIndex: 10 }}
                 >
                     <Image
-                        src={`${basePath}/images/UN_Logo_Stacked_Colour_English.svg`}
+                        src="/images/UN_Logo_Stacked_Colour_English.svg"
                         alt="UN Logo"
                         width={320}
                         height={80}

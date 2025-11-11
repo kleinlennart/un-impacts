@@ -192,11 +192,11 @@ export default function Home() {
                 className="h-screen bg-background flex justify-center items-start overflow-hidden
                            portrait:flex portrait:justify-center portrait:items-center portrait:!pt-0"
             >
-                {/* Fixed UN logo - responsive positioning for landscape and portrait */}
+                {/* Fixed UN logo - aligned with impact text left edge */}
                 <div
-                    className="fixed top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 lg:top-10 lg:left-10 
+                    className="fixed top-4 left-12 sm:left-16 md:left-20 lg:left-24 xl:left-32
                                pointer-events-none select-none
-                               portrait:top-6 portrait:left-6 portrait:md:top-10 portrait:md:left-10"
+                               portrait:top-6 portrait:left-16 portrait:md:left-20 portrait:lg:left-24"
                     style={{ zIndex: 10 }}
                 >
                     <Image
@@ -242,9 +242,10 @@ export default function Home() {
                 </div>
             </main>
 
-            {/* Footnote */}
-            <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
-                <p className="text-xs text-gray-400 text-center px-4 whitespace-nowrap
+            {/* Footnote - aligned with impact text left edge */}
+            <footer className="fixed bottom-4 left-12 sm:left-16 md:left-20 lg:left-24 xl:left-32
+                               portrait:left-16 portrait:md:left-20 portrait:lg:left-24 pointer-events-none">
+                <p className="text-xs text-gray-400 text-left
                               portrait:text-sm portrait:md:text-base">
                     Impacts extracted from 2024 Annual Reports of UN System entities.<br />This is an unofficial site.
                 </p>

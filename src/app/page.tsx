@@ -194,9 +194,9 @@ export default function Home() {
             >
                 {/* Fixed UN logo - aligned with impact text left edge */}
                 <div
-                    className="fixed top-4 left-12 sm:left-16 md:left-20 lg:left-24 xl:left-32
+                    className="fixed top-8 left-12 sm:left-16 md:left-20 lg:left-24 xl:left-32
                                pointer-events-none select-none
-                               portrait:top-6 portrait:left-16 portrait:md:left-20 portrait:lg:left-24"
+                               portrait:top-10 portrait:left-16 portrait:md:left-20 portrait:lg:left-24"
                     style={{ zIndex: 10 }}
                 >
                     <Image
